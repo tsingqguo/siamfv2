@@ -33,6 +33,7 @@ class LaSOTDataset(BaseDataset):
 
     def _construct_sequence(self, sequence_name):
         class_name = sequence_name.split('-')[0]
+        class_name = ''
         anno_path = '{}/{}/{}/groundtruth.txt'.format(self.base_path, class_name, sequence_name)
 
         ground_truth_rect = load_text(str(anno_path), delimiter=',', dtype=np.float64)

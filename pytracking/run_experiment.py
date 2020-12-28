@@ -24,7 +24,6 @@ def run_experiment(experiment_module: str, experiment_name: str, debug=0, thread
     print('Running:  {}  {}'.format(experiment_module, experiment_name))
     run_dataset(dataset, trackers, debug, threads)
 
-
 def main():
     parser = argparse.ArgumentParser(description='Run tracker.')
     parser.add_argument('experiment_module', type=str, help='Name of experiment module in the experiments/ folder.')
@@ -35,7 +34,6 @@ def main():
     args = parser.parse_args()
 
     run_experiment(args.experiment_module, args.experiment_name, args.debug, args.threads)
-
 
 if __name__ == '__main__':
     main()
