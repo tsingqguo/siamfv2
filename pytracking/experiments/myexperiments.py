@@ -19,7 +19,14 @@ def uav_test():
 
 def dimp_lasot():
     # Run three runs of ATOM on NFS and UAV datasets
-    trackers = trackerlist('dimp', 'dimp18', range(1))
+    trackers = trackerlist('dimp', 'dimp18', range(2))
+    dataset = get_dataset('lasot')
+
+    return trackers, dataset
+
+def eco_lasot():
+    # Run three runs of ATOM on NFS and UAV datasets
+    trackers = trackerlist('eco', 'default', range(1))
     dataset = get_dataset('lasot')
 
     return trackers, dataset

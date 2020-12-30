@@ -68,7 +68,6 @@ class Tracker:
 
         self.visdom = None
 
-
     def _init_visdom(self, visdom_info, debug):
         visdom_info = {} if visdom_info is None else visdom_info
         self.pause_mode = False
