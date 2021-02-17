@@ -11,7 +11,6 @@ from .optim import FilterOptim, FactorizedConvProblem
 from pytracking.features import augmentation
 
 
-
 class ECO(BaseTracker):
 
     multiobj_mode = 'parallel'
@@ -176,8 +175,6 @@ class ECO(BaseTracker):
 
         self.symmetrize_filter()
 
-
-
     def track(self, image, info: dict = None) -> dict:
         self.debug_info = {}
 
@@ -188,7 +185,6 @@ class ECO(BaseTracker):
         im = numpy_to_torch(image)
 
         # ------- LOCALIZATION ------- #
-
         # Get sample
         sample_pos = self.pos.round()
         sample_scales = self.target_scale * self.params.scale_factors
@@ -218,7 +214,6 @@ class ECO(BaseTracker):
 
 
         # ------- UPDATE ------- #
-
         # Get train sample
         train_xf = TensorList([xf[scale_ind:scale_ind+1, ...] for xf in test_xf])
 

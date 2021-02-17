@@ -13,7 +13,7 @@ from ltr.models.target_classifier.initializer import FilterInitializerZero
 from ltr.models.layers import activation
 
 
-class DiMP(BaseTracker):
+class SiamF(BaseTracker):
 
     multiobj_mode = 'parallel'
 
@@ -31,7 +31,7 @@ class DiMP(BaseTracker):
         # Initialize network
         self.initialize_features()
 
-        # The DiMP network
+        # The SiamF network
         self.net = self.params.net
 
         # Time initialization
@@ -64,7 +64,7 @@ class DiMP(BaseTracker):
         search_area = torch.prod(self.target_sz * self.params.search_area_scale).item()
         self.target_scale =  math.sqrt(search_area) / self.img_sample_sz.prod().sqrt()
 
-        # Target size in base scale (in the search area with img_sample_sz)
+        # Target size in base scale
         self.base_target_sz = self.target_sz / self.target_scale
 
         # Setup scale factors
@@ -112,6 +112,9 @@ class DiMP(BaseTracker):
         # Location of sample
         sample_pos, sample_scales = self.get_sample_location(sample_coords)
 
+        # online suppression
+        test_x = self.suppress_search(test_x)
+
         # Compute classification scores
         scores_raw = self.classify_target(test_x)
 
@@ -131,7 +134,6 @@ class DiMP(BaseTracker):
 
 
         # ------- UPDATE ------- #
-
         update_flag = flag not in ['not_found', 'uncertain']
         hard_negative = (flag == 'hard_negative')
         learning_rate = self.params.get('hard_negative_learning_rate', None) if hard_negative else None
@@ -145,6 +147,16 @@ class DiMP(BaseTracker):
 
             # Update the classifier model
             self.update_classifier(train_x, target_box, learning_rate, s[scale_ind,...])
+
+        if update_flag and self.params.get('update_suppress', False):
+            # Get train sample
+            train_x = test_x[scale_ind:scale_ind+1, ...]
+
+            # Create target_box and label for spatial sample
+            target_box = self.get_iounet_box(self.pos, self.target_sz, sample_pos[scale_ind,:], sample_scales[scale_ind])
+
+            # Update the classifier model
+            self.update_suppressor(train_x, target_box, learning_rate, s[scale_ind,...])
 
         # Set the pos of the tracker to iounet pos
         if self.params.get('use_iou_net', True) and flag != 'not_found' and hasattr(self, 'pos_iounet'):
@@ -601,6 +613,9 @@ class DiMP(BaseTracker):
         if self.params.get('filter_init_zero', False):
             self.net.classifier.filter_initializer = FilterInitializerZero(self.net.classifier.filter_size, feature_dim)
 
+    def update_suppressor(self, train_x, target_box, learning_rate=None, scores=None):
+
+        return
 
     def update_classifier(self, train_x, target_box, learning_rate=None, scores=None):
         # Set flags and learning rate
